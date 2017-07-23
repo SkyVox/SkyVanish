@@ -1,0 +1,11 @@
+name: SkyVanish
+main: me.skyvox.svanish.Vanish
+version: 1.0
+author: [SkyVox]
+description: A useful Vanish plugin fully configurable.
+
+commands:
+    vanish:
+      usage: /<Command> help
+      aliases: [see]
+      description: Use this command to toggle your vanish.

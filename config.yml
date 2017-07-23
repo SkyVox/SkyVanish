@@ -1,0 +1,124 @@
+#SkyVanish, Config:
+
+#If you leave it 'true'
+#Vanished players can see all others Vanished players.
+Vanished-can-see-others: 'true'
+
+#If you leave it 'true'
+#When the player active or desactive will thunder above them.
+Vanish-Lightning: 'false'
+UnVanish-Lightning: 'true'
+
+#This is the cooldown to players toggle Vanish.
+#You need put the cooldown in seconds.
+WaitToToggleVanish: 5
+
+
+#Vanish, when player join:
+Join:
+  ReceiveItemWhenJoin: 'true'
+  VisibilityEnableType: 'INK_SACK:10'
+  VisibilityEnableName: 'Players: &aVisible &7(Right Click)'
+  VisibilityEnableSlot: 8
+  VisibilityEnableLore:
+    - '&7Right click to toggle player visibility!'
+  VisibilityDisableType: 'INK_SACK:8'
+  VisibilityDisableName: 'Players: &cHidden &7(Right Click)'
+  VisibilityDisableSlot: 8
+  VisibilityDisableLore:
+    - '&7Right-click to toggle player visibility!'
+
+
+#Vanish, Menu:
+Menu:
+  VanishedList:
+    Inventory-Name: '&8Vanished list'
+    RefreshShowItem: 'true'
+    RefreshItemType: 'DOUBLE_PLANT'
+    RefreshItemName: '&eRefresh the page'
+    RefreshItemSlot: 49
+    RefreshItemLore:
+      - ''
+      - '&7Click here to refresh'
+      - '&7this page.'
+    SkullItemName: '&9%player%'
+    SkullItemLore:
+      - ''
+      - '&7Click for more info!'
+      
+    #If you leave this option 'false' will don't have a item to close this menu.
+    CloseItemShow: 'true'
+    CloseItemType: 'ARROW'
+    #The menu slot starts with 0.
+    CloseItemSlot: 53
+    CloseItemName: '&aClose menu'
+    CloseItemLore:
+      - '&7Click to close'
+  PlayerInfo:
+    Inventory-Name: '&8%clickedplayer%'
+    SkullItemName: '&9%clickedplayer%'
+    SkullItemSlot: 0
+    SkullItemLore:
+      - ''
+      - '&7Info about &e%clickedplayer%'
+      
+    ShowTeleportItem: 'true'
+    TeleportItemType: 'ENDER_PEARL'
+    TeleportName: '&7Teleport to &9%clickedplayer%'
+    TeleportItemSlot: 11
+    TeleportItemLore:
+      - ''
+      - '&7Click here to teleport.'
+    
+    ShowInfoItem: 'true'
+    InfoItemType: 'PAPER'
+    InfoItemName: '&7Info about &9%clickedplayer%'
+    InfoItemSlot: 13
+    InfoItemLore:
+      - ''
+      - '&7Life &c%clickedlife%'
+      - '&7Level &c%clickedlevel%'
+      - '&7Locatrion &c%clickedloc%'
+      - '&7Food &c%clickedfood%'
+    
+    ShowUnvanishItem: 'true'
+    UnvanishItemType: 'REDSTONE'
+    UnvanishItemName: '&7Click here to unvanish &9%clickedplayer%'
+    UnvanishItemSlot: 15
+    UnvanishItemLore:
+      - '&5Unvanish &9%clickedplayer%'
+
+
+#Vanish, Messages:
+Messages:
+  No-Permission: '&cYou do not have permission.'
+  Illegal-Args: '&7Use: %usage%'
+  Vanish-Reload: '&7SkyVanish &cHas been reloaded.'
+  Teleport: '&7You teleport to &9%clickedplayer%'
+  ClickOnYourSkull: '&7Oh, %player% is you right?'
+  IsOnCooldown: '&8%player%, &7you need wait &e%time% &7to toggle your vanish.'
+#These messages below is when you active or desactive vanish:
+  Vanish:
+    - '&7Your vanish has been toggle to &2on&7.'
+  UnVanish:
+    - '&7Your vanish has been toggle to &2off&7.'
+  Vanish-Others:
+    - '&7You changed the vanish of %target% to &2on&7.'
+  UnVanish-Others:
+    - '&7You changed the vanish of %target% to &2off&7.'
+  PlayersVisibility:
+    EnableVisible:
+      - '&aPlayer visibility enabled.'
+    DisableVisible:
+      - '&cPlayer visibility disabled.'
+      
+
+#This is what will show when you type: "/vanish help"
+CommandsHelp:
+  - '&aVanish help: '
+  - ''
+  - '&e/vanish &b- Toggle your vanish.'
+  - '&e/vanish toggle <Player> &b- Toggle vanish for someone.'
+  - '&e/vanish list &b- Check who is vanished.'
+  - '&e/vanish reload &b- Reload the plugin config.'
+  - '&e/vanish help &b- Prints this help message.'
