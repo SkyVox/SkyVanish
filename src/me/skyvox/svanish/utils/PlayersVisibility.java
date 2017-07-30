@@ -41,10 +41,14 @@ public class PlayersVisibility {
 		}
 	}
 	
-	private static void showPlayers(Player player) {
+	public static void showPlayers(Player player) {
 		playersCache.remove(player.getUniqueId());
 		for (Player players : Bukkit.getOnlinePlayers()) {
-			player.showPlayer(players);
+			for (UUID uuid : VanishManager.getVanishList()) {
+				Player target = Bukkit.getPlayer(uuid);
+				if (players == target) continue;
+				player.showPlayer(players);
+			}
 		}
 	}
 	

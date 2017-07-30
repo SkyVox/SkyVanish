@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.skyvox.svanish.files.ConfigFile;
+import me.skyvox.svanish.files.MySQLFile;
 import me.skyvox.svanish.utils.ChatUtil;
 import me.skyvox.svanish.utils.VanishManager;
 import me.skyvox.svanish.utils.cooldown.CooldownAPI;
@@ -94,6 +95,8 @@ public class VanishCmd implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
 				if (player.hasPermission("vanish.reload")) {
 					ConfigFile.reload();
+					MySQLFile.reload();
+					MySQLFile.save();
 					if (ConfigFile.get().contains("Messages.Vanish-Reload")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigFile.get().getString("Messages.Vanish-Reload")));
 					}
@@ -165,6 +168,8 @@ public class VanishCmd implements CommandExecutor {
 			} else if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
 				if (sender.hasPermission("vanish.reload")) {
 					ConfigFile.reload();
+					MySQLFile.reload();
+					MySQLFile.save();
 					if (ConfigFile.get().contains("Messages.Vanish-Reload")) {
 						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ConfigFile.get().getString("Messages.Vanish-Reload")));
 					}

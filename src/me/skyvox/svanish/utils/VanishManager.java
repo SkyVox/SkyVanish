@@ -6,10 +6,13 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import me.skyvox.svanish.Vanish;
 import me.skyvox.svanish.events.VanishToggleEvent;
 import me.skyvox.svanish.files.ConfigFile;
+import me.skyvox.svanish.files.MySQLFile;
 
 public class VanishManager {
 	private static List<UUID> vanishList;
@@ -35,7 +38,6 @@ public class VanishManager {
 						player.sendMessage(msg);
 					}
 				}
-				vanishList.remove(player.getUniqueId());
 			} else {
 				hidePlayer(player);
 				if (ConfigFile.get().contains("Vanish-Lightning")) {
@@ -49,12 +51,15 @@ public class VanishManager {
 						player.sendMessage(msg);
 					}
 				}
-				vanishList.add(player.getUniqueId());
 			}
 		}
 	}
 	
-	private static void hidePlayer(Player player) {
+	public static void hidePlayer(Player player) {
+		vanishList.add(player.getUniqueId());
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			Vanish.playerSetup.refresh(player.getUniqueId(), true);
+		}
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			if ((ConfigFile.get().contains("Vanished-can-see-others")) && (ConfigFile.get().getString("Vanished-can-see-others").equalsIgnoreCase("true"))) {
 				for (UUID uuid : vanishList) {
@@ -74,12 +79,23 @@ public class VanishManager {
 	}
 	
 	private static void showPlayer(Player player) {
+		vanishList.remove(player.getUniqueId());
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			Vanish.playerSetup.refresh(player.getUniqueId(), false);
+		}
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			players.showPlayer(player);
 		}
 	}
 	
 	public static boolean isVanished(Player player) {
+		if (vanishList.contains(player.getUniqueId())) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isVanished(OfflinePlayer player) {
 		if (vanishList.contains(player.getUniqueId())) {
 			return true;
 		}

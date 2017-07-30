@@ -1,0 +1,8 @@
+MySQL:
+  enabled: 'false'
+  host: ''
+  database: ''
+  username: ''
+  password: ''
+  table: ''
+  port: 3306

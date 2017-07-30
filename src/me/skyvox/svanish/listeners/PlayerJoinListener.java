@@ -16,8 +16,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import me.skyvox.svanish.Vanish;
 import me.skyvox.svanish.files.ConfigFile;
+import me.skyvox.svanish.files.MySQLFile;
 import me.skyvox.svanish.utils.PlayersVisibility;
 import me.skyvox.svanish.utils.VanishManager;
 import me.skyvox.svanish.utils.cooldown.CooldownAPI;
@@ -27,20 +30,18 @@ public class PlayerJoinListener implements Listener {
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.LOW)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		for (UUID uuid : VanishManager.getVanishList()) {
-			Player vanishedPlayer = Bukkit.getPlayer(uuid);
-			if (vanishedPlayer != null) {
-				player.hidePlayer(vanishedPlayer);
-			}
-		}
-		for (UUID uuid : PlayersVisibility.getPlayersCache()) {
-			Player p = Bukkit.getPlayer(uuid);
-			if (p != null) {
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			if (Vanish.playerSetup.getPlayer(player.getUniqueId())) {
 				for (Player players : Bukkit.getOnlinePlayers()) {
-					p.hidePlayer(players);
+					players.hidePlayer(player);
+					VanishManager.getVanishList().add(player.getUniqueId());
 				}
 			}
 		}
+		for (Player players : Bukkit.getOnlinePlayers()) {
+			setup(player, players);
+		}
+		
 		if (ConfigFile.get().contains("Join.ReceiveItemWhenJoin") && ConfigFile.get().getString("Join.ReceiveItemWhenJoin").equalsIgnoreCase("true")) {
 			addItem(player);
 		}
@@ -78,6 +79,29 @@ public class PlayerJoinListener implements Listener {
 		} else {
 			player.getInventory().setItem(ConfigFile.get().getInt("Join.VisibilityEnableSlot"), getEnableItem(player));
 		}
+	}
+	
+	private static void setup(Player player, Player onlinePlayers) {
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				
+				player.showPlayer(onlinePlayers);
+				for (UUID uuid : VanishManager.getVanishList()) {
+					Player vanishedPlayer = Bukkit.getPlayer(uuid);
+					if (vanishedPlayer != null) {
+						onlinePlayers.hidePlayer(vanishedPlayer);
+					}
+				}
+				for (UUID uuid : PlayersVisibility.getPlayersCache()) {
+					Player p = Bukkit.getPlayer(uuid);
+					if (p != null) {
+						p.hidePlayer(onlinePlayers);
+					}
+				}
+			}
+		}.runTaskLater(Vanish.getInstance(), 20);
 	}
 	
 	private static ItemStack getEnableItem(Player player) {
