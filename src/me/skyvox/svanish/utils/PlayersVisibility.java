@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import me.skyvox.svanish.events.VisibilityToggleEvent;
 import me.skyvox.svanish.files.ConfigFile;
 
 public class PlayersVisibility {
@@ -20,24 +21,28 @@ public class PlayersVisibility {
 	}
 	
 	public static void togglePlayerVisibility(Player player) {
-		if (isOtherPlayersVisible(player)) {
-			showPlayers(player);
-			if (ConfigFile.get().contains("Messages.PlayersVisibility.EnableVisible")) {
-				for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.EnableVisible")) {
-					String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
-					player.sendMessage(msg);
+		VisibilityToggleEvent event = new VisibilityToggleEvent(player, isOtherPlayersVisible(player));
+		Bukkit.getServer().getPluginManager().callEvent(event);
+		if (!event.isCancelled()) {
+			if (isOtherPlayersVisible(player)) {
+				showPlayers(player);
+				if (ConfigFile.get().contains("Messages.PlayersVisibility.EnableVisible")) {
+					for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.EnableVisible")) {
+						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
+						player.sendMessage(msg);
+					}
 				}
-			}
-			playersVanishList.remove(player.getUniqueId());
-		} else {
-			hidePlayers(player);
-			if (ConfigFile.get().contains("Messages.PlayersVisibility.DisableVisible")) {
-				for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.DisableVisible")) {
-					String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
-					player.sendMessage(msg);
+				playersVanishList.remove(player.getUniqueId());
+			} else {
+				hidePlayers(player);
+				if (ConfigFile.get().contains("Messages.PlayersVisibility.DisableVisible")) {
+					for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.DisableVisible")) {
+						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
+						player.sendMessage(msg);
+					}
 				}
+				playersVanishList.add(player.getUniqueId());
 			}
-			playersVanishList.add(player.getUniqueId());
 		}
 	}
 	
