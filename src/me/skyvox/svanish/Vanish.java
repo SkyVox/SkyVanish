@@ -15,8 +15,9 @@ import me.skyvox.svanish.files.ConfigFile;
 import me.skyvox.svanish.files.MySQLFile;
 import me.skyvox.svanish.listeners.PlayerInfoMenuClick;
 import me.skyvox.svanish.listeners.PlayerJoinListener;
-import me.skyvox.svanish.listeners.PlayerQuitListener;
 import me.skyvox.svanish.listeners.VanishedMenuClick;
+import me.skyvox.svanish.listeners.vanishedlisteners.ChestInteractListener;
+import me.skyvox.svanish.listeners.vanishedlisteners.PickupItemListener;
 import me.skyvox.svanish.utils.ChatUtil;
 import me.skyvox.svanish.utils.PlayersVisibility;
 import me.skyvox.svanish.utils.VanishManager;
@@ -26,7 +27,7 @@ import me.skyvox.svanish.utils.updatecheck.Update;
 
 /*
  * In future updates:
- * TODO: Bungee, More specifics events.
+ * TODO: Bungee.
  */
 public class Vanish extends JavaPlugin {
 	private static Vanish VANISH;
@@ -45,11 +46,11 @@ public class Vanish extends JavaPlugin {
 		playerSetup = new MySQLPlayerSetup();
 		ConfigFile.setup();
 		MySQLFile.setup();
-		data = new MySQLSetup();
 		listeners();
 		commands();
 		
 		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			data = new MySQLSetup();
 			if (Vanish.data.getTable() == null) {
 				try {
 					Bukkit.broadcastMessage("Creating..");
@@ -101,14 +102,16 @@ public class Vanish extends JavaPlugin {
 		VanishManager.getVanishList().clear();
 		vanishManager = null;
 		playersVisibility = null;
-		try {
-			if (!data.getConnection().isClosed()) {
-				data.closeConnection();
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			try {
+				if (!data.getConnection().isClosed()) {
+					data.closeConnection();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+			data = null;
 		}
-		data = null;
 		getServer().getConsoleSender().sendMessage(ChatUtil.vanishtag + ChatColor.GREEN + "Has been disabled!");
 		getServer().getConsoleSender().sendMessage(ChatUtil.lines);
 	}
@@ -118,7 +121,13 @@ public class Vanish extends JavaPlugin {
 		pm.registerEvents(new VanishedMenuClick(), this);
 		pm.registerEvents(new PlayerInfoMenuClick(), this);
 		pm.registerEvents(new PlayerJoinListener(), this);
-		pm.registerEvents(new PlayerQuitListener(), this);
+		
+		if ((!ConfigFile.get().contains("SilentMode.OpenChest")) || (ConfigFile.get().contains("SilentMode.OpenChest") && ConfigFile.get().getString("SilentMode.OpenChest").equalsIgnoreCase("true"))) {
+			pm.registerEvents(new ChestInteractListener(), this);
+		}
+		if ((!ConfigFile.get().contains("SilentMode.PickupItem")) || (ConfigFile.get().contains("SilentMode.PickupItem") && ConfigFile.get().getString("SilentMode.PickupItem").equalsIgnoreCase("true"))) {
+			pm.registerEvents(new PickupItemListener(), this);
+		}
 	}
 	
 	private void commands() {
