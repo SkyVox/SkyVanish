@@ -10,6 +10,7 @@ public class VanishToggleEvent extends Event implements Cancellable {
     private boolean cancelled;
     private Player player;
     private boolean isVanish;
+	private boolean isDefaultMessage = true;
 
     public VanishToggleEvent(Player player, boolean isVanish) {
     	this.player = player;
@@ -26,6 +27,14 @@ public class VanishToggleEvent extends Event implements Cancellable {
 
 	public void setVanish(boolean isVanish) {
 		this.isVanish = isVanish;
+	}
+	
+	public boolean isDefaultMessage() {
+		return isDefaultMessage;
+	}
+
+	public void setDefaultMessage(boolean isDefaultMessage) {
+		this.isDefaultMessage = isDefaultMessage;
 	}
     
 	public boolean isCancelled() {

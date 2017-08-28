@@ -8,8 +8,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import me.skyvox.svanish.Vanish;
 import me.skyvox.svanish.events.VisibilityToggleEvent;
 import me.skyvox.svanish.files.ConfigFile;
+import me.skyvox.svanish.files.MySQLFile;
 
 public class PlayersVisibility {
 	private static List<UUID> playersVanishList;
@@ -26,7 +28,7 @@ public class PlayersVisibility {
 		if (!event.isCancelled()) {
 			if (isOtherPlayersVisible(player)) {
 				showPlayers(player);
-				if (ConfigFile.get().contains("Messages.PlayersVisibility.EnableVisible")) {
+				if (ConfigFile.get().contains("Messages.PlayersVisibility.EnableVisible") && event.isDefaultMessage()) {
 					for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.EnableVisible")) {
 						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
 						player.sendMessage(msg);
@@ -35,7 +37,7 @@ public class PlayersVisibility {
 				playersVanishList.remove(player.getUniqueId());
 			} else {
 				hidePlayers(player);
-				if (ConfigFile.get().contains("Messages.PlayersVisibility.DisableVisible")) {
+				if (ConfigFile.get().contains("Messages.PlayersVisibility.DisableVisible") && event.isDefaultMessage()) {
 					for (String msgs : ConfigFile.get().getStringList("Messages.PlayersVisibility.DisableVisible")) {
 						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
 						player.sendMessage(msg);
@@ -48,17 +50,21 @@ public class PlayersVisibility {
 	
 	public static void showPlayers(Player player) {
 		playersCache.remove(player.getUniqueId());
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			Vanish.playerVisibility.refresh(player.getUniqueId(), false);
+		}
 		for (Player players : Bukkit.getOnlinePlayers()) {
-			for (UUID uuid : VanishManager.getVanishList()) {
-				Player target = Bukkit.getPlayer(uuid);
-				if (players == target) continue;
-				player.showPlayer(players);
-			}
+			if (VanishManager.getVanishList().contains(players.getUniqueId())) continue;
+			if (players == player) continue;
+			player.showPlayer(players);
 		}
 	}
 	
 	public static void hidePlayers(Player player) {
 		playersCache.add(player.getUniqueId());
+		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
+			Vanish.playerVisibility.refresh(player.getUniqueId(), true);
+		}
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			if (players == player) continue;
 			player.hidePlayer(players);

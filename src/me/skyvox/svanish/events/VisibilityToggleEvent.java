@@ -10,6 +10,7 @@ public class VisibilityToggleEvent extends Event implements Cancellable {
     private boolean cancelled;
     private Player player;
     private boolean isVisibility;
+    private boolean isDefaultMessage = true;
 
     public VisibilityToggleEvent(Player player, boolean isVisibility) {
     	this.player = player;
@@ -24,8 +25,16 @@ public class VisibilityToggleEvent extends Event implements Cancellable {
 		return isVisibility;
 	}
 
-	public void setVanish(boolean isVanish) {
-		this.isVisibility = isVanish;
+	public void setVisibility(boolean isVisibility) {
+		this.isVisibility = isVisibility;
+	}
+	
+	public boolean isDefaultMessage() {
+		return isDefaultMessage;
+	}
+
+	public void setDefaultMessage(boolean isDefaultMessage) {
+		this.isDefaultMessage = isDefaultMessage;
 	}
     
 	public boolean isCancelled() {

@@ -37,6 +37,11 @@ public class PlayerJoinListener implements Listener {
 					VanishManager.getVanishList().add(player.getUniqueId());
 				}
 			}
+			if (Vanish.playerVisibility.getPlayer(player.getUniqueId())) {
+				PlayersVisibility.getPlayersCache().add(player.getUniqueId());
+			} else {
+				PlayersVisibility.getPlayersCache().remove(player.getUniqueId());
+			}
 		}
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			setup(player, players);
@@ -74,7 +79,7 @@ public class PlayerJoinListener implements Listener {
 	}
 	
 	private void addItem(Player player) {
-		if (PlayersVisibility.isOtherPlayersVisible(player)) {
+		if (PlayersVisibility.isOtherPlayersVisible(player) || (MySQLFile.get().getString("MySQL.enabled").equalsIgnoreCase("true") && Vanish.playerVisibility.getPlayer(player.getUniqueId()))) {
 			player.getInventory().setItem(ConfigFile.get().getInt("Join.VisibilityDisableSlot"), getDisabledItem(player));
 		} else {
 			player.getInventory().setItem(ConfigFile.get().getInt("Join.VisibilityEnableSlot"), getEnableItem(player));
@@ -97,6 +102,9 @@ public class PlayerJoinListener implements Listener {
 				for (UUID uuid : PlayersVisibility.getPlayersCache()) {
 					Player p = Bukkit.getPlayer(uuid);
 					if (p != null) {
+						if (p == onlinePlayers) {
+							continue;
+						}
 						p.hidePlayer(onlinePlayers);
 					}
 				}

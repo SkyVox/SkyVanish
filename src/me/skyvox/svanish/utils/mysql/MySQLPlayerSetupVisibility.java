@@ -11,17 +11,17 @@ import org.bukkit.OfflinePlayer;
 
 import me.skyvox.svanish.Vanish;
 
-public class MySQLPlayerSetup {
+public class MySQLPlayerSetupVisibility {
 	
 	public void setPlayer(final UUID uuid, boolean isVanished) {
 		try {
-			PreparedStatement statement = Vanish.vanishData.getConnection().prepareStatement("SELECT * FROM `" + Vanish.vanishData.getTable() + "` WHERE `UUID`=?");
+			PreparedStatement statement = Vanish.vanishData.getConnection().prepareStatement("SELECT * FROM `" + Vanish.visibilityData.getTable() + "` WHERE `UUID`=?");
 			statement.setString(1, uuid.toString());
 			ResultSet result = statement.executeQuery();
 			result.next();
 			if (!playerExits(uuid)) {
 				OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-				PreparedStatement set = Vanish.vanishData.getConnection().prepareStatement("INSERT INTO " + Vanish.vanishData.getTable() + " (UUID,REAL_NAME,VANISHED) VALUES (?,?,?)");
+				PreparedStatement set = Vanish.vanishData.getConnection().prepareStatement("INSERT INTO " + Vanish.visibilityData.getTable() + " (UUID,REAL_NAME,VANISHED) VALUES (?,?,?)");
 				set.setString(1, uuid.toString());
 				set.setString(2, player.getName());
 				set.setBoolean(3, isVanished);
@@ -34,7 +34,7 @@ public class MySQLPlayerSetup {
 	
 	public boolean playerExits(UUID uuid) {
 		try {
-			PreparedStatement statement = Vanish.vanishData.getConnection().prepareStatement("SELECT * FROM `" + Vanish.vanishData.getTable() + "` WHERE `UUID`=?");
+			PreparedStatement statement = Vanish.vanishData.getConnection().prepareStatement("SELECT * FROM `" + Vanish.visibilityData.getTable() + "` WHERE `UUID`=?");
 			statement.setString(1, uuid.toString());
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
@@ -50,8 +50,8 @@ public class MySQLPlayerSetup {
 		setPlayer(uuid, isVanished);
 		int i = isVanished ? 1 : 0;
 		try {
-			Statement statement = Vanish.vanishData.getConnection().createStatement();
-			statement.executeUpdate("UPDATE `" + Vanish.vanishData.getTable() + "` SET `VANISHED` = '" + i + "' WHERE `UUID` = '" + uuid.toString() + "'");
+			Statement statement = Vanish.visibilityData.getConnection().createStatement();
+			statement.executeUpdate("UPDATE `" + Vanish.visibilityData.getTable() + "` SET `VANISHED` = '" + i + "' WHERE `UUID` = '" + uuid.toString() + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -59,8 +59,8 @@ public class MySQLPlayerSetup {
 	
 	public boolean getPlayer(UUID uuid) {
 		try {
-			Statement statement = Vanish.vanishData.getConnection().createStatement();
-			ResultSet result = statement.executeQuery("SELECT * FROM `" + Vanish.vanishData.getTable() + "` WHERE `UUID`='" + uuid.toString() + "'");
+			Statement statement = Vanish.visibilityData.getConnection().createStatement();
+			ResultSet result = statement.executeQuery("SELECT * FROM `" + Vanish.visibilityData.getTable() + "` WHERE `UUID`='" + uuid.toString() + "'");
 			if (result.next()) {
 				return result.getBoolean(3);
 			}

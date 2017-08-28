@@ -32,7 +32,7 @@ public class VanishManager {
 						player.getWorld().strikeLightningEffect(player.getLocation());
 					}
 				}
-				if (ConfigFile.get().contains("Messages.UnVanish")) {
+				if (ConfigFile.get().contains("Messages.UnVanish") && event.isDefaultMessage()) {
 					for (String msgs : ConfigFile.get().getStringList("Messages.UnVanish")) {
 						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
 						player.sendMessage(msg);
@@ -45,7 +45,7 @@ public class VanishManager {
 						player.getWorld().strikeLightningEffect(player.getLocation());
 					}
 				}
-				if (ConfigFile.get().contains("Messages.Vanish")) {
+				if (ConfigFile.get().contains("Messages.Vanish") && event.isDefaultMessage()) {
 					for (String msgs : ConfigFile.get().getStringList("Messages.Vanish")) {
 						String msg = ChatColor.translateAlternateColorCodes('&', msgs.replace("%player%", player.getName()).replace("%displayName%", player.getDisplayName()));
 						player.sendMessage(msg);

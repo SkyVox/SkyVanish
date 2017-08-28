@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 import me.skyvox.svanish.files.MySQLFile;
 
-public class MySQLSetup {
+public class MySQLSetupVisibility {
 	private Connection connection;
 	public String host;
 	public String username;
@@ -17,12 +17,16 @@ public class MySQLSetup {
 	public String table;
 	private int port;
 	
-	public MySQLSetup() {
+	public MySQLSetupVisibility() {
+		if (!MySQLFile.get().contains("MySQL.visibilityTable")) {
+			MySQLFile.get().set("MySQL.visibilityTable", String.valueOf("visibility"));
+			MySQLFile.save();
+		}
 		this.host = MySQLFile.get().getString("MySQL.host");
 		this.database = MySQLFile.get().getString("MySQL.database");
 		this.username = MySQLFile.get().getString("MySQL.username");
 		this.password = MySQLFile.get().getString("MySQL.password");
-		this.table = MySQLFile.get().getString("MySQL.table");
+		this.table = MySQLFile.get().getString("MySQL.visibilityTable");
 		this.port = MySQLFile.get().getInt("MySQL.port");
 		
 		try {
@@ -32,13 +36,13 @@ public class MySQLSetup {
 				}
 				Class.forName("com.mysql.jdbc.Driver");
 				setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
-				connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `vanish` (UUID varchar(36), REAL_NAME varchar(16) NOT NULL UNIQUE, VANISHED boolean NOT NULL, PRIMARY KEY(UUID))");
+				connection.createStatement().execute("CREATE TABLE IF NOT EXISTS `visibility` (UUID varchar(36), REAL_NAME varchar(16) NOT NULL UNIQUE, VANISHED boolean NOT NULL, PRIMARY KEY(UUID))");
 				DatabaseMetaData dbm = connection.getMetaData();
 				ResultSet result = dbm.getTables(null, null, table, null);
 				if (!result.next()) {
-					MySQLFile.get().set("MySQL.table", String.valueOf("vanish"));
+					MySQLFile.get().set("MySQL.table", String.valueOf("visibility"));
 					MySQLFile.save();
-					this.table = "vanish";
+					this.table = "visibility";
 				}
 			}
 		} catch (SQLException e) {

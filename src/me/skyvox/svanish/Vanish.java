@@ -22,19 +22,19 @@ import me.skyvox.svanish.utils.ChatUtil;
 import me.skyvox.svanish.utils.PlayersVisibility;
 import me.skyvox.svanish.utils.VanishManager;
 import me.skyvox.svanish.utils.mysql.MySQLPlayerSetup;
-import me.skyvox.svanish.utils.mysql.MySQLSetup;
+import me.skyvox.svanish.utils.mysql.MySQLPlayerSetupVisibility;
+import me.skyvox.svanish.utils.mysql.MySQLSetupVanish;
+import me.skyvox.svanish.utils.mysql.MySQLSetupVisibility;
 import me.skyvox.svanish.utils.updatecheck.Update;
 
-/*
- * In future updates:
- * TODO: Bungee.
- */
 public class Vanish extends JavaPlugin {
 	private static Vanish VANISH;
 	public static VanishManager vanishManager;
 	public static PlayersVisibility playersVisibility;
-	public static MySQLSetup data;
+	public static MySQLSetupVanish vanishData;
+	public static MySQLSetupVisibility visibilityData;
 	public static MySQLPlayerSetup playerSetup;
+	public static MySQLPlayerSetupVisibility playerVisibility;
 	
 	@Override
 	public void onEnable() {
@@ -44,18 +44,19 @@ public class Vanish extends JavaPlugin {
 		vanishManager = new VanishManager();
 		playersVisibility = new PlayersVisibility();
 		playerSetup = new MySQLPlayerSetup();
+		playerVisibility = new MySQLPlayerSetupVisibility();
 		ConfigFile.setup();
 		MySQLFile.setup();
 		listeners();
 		commands();
 		
 		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
-			data = new MySQLSetup();
-			if (Vanish.data.getTable() == null) {
+			vanishData = new MySQLSetupVanish();
+			visibilityData = new MySQLSetupVisibility();
+			if (Vanish.vanishData.getTable() == null) {
 				try {
-					Bukkit.broadcastMessage("Creating..");
 					System.out.println(ChatColor.RED + "The table that was informed is not valid, It will create a table automatically. (Table name: 'vanish')!");
-					Statement statement = data.getConnection().createStatement();
+					Statement statement = vanishData.getConnection().createStatement();
 					statement.executeQuery("CREATE TABLE IF NOT EXISTS `vanish` (UUID varchar(36), REAL_NAME varchar(16) NOT NULL UNIQUE, VANISHED boolean NOT NULL, PRIMARY KEY(UUID))");
 					MySQLFile.get().set("MySQL.table", String.valueOf("vanish"));
 					MySQLFile.save();
@@ -63,12 +64,30 @@ public class Vanish extends JavaPlugin {
 					e.printStackTrace();
 				}
 			}
+			if (Vanish.visibilityData.getTable() == null) {
+				try {
+					System.out.println(ChatColor.RED + "The table that was informed is not valid, It will create a table automatically. (Table name: 'visibility')!");
+					Statement statement = vanishData.getConnection().createStatement();
+					statement.executeQuery("CREATE TABLE IF NOT EXISTS `visibility` (UUID varchar(36), REAL_NAME varchar(16) NOT NULL UNIQUE, VANISHED boolean NOT NULL, PRIMARY KEY(UUID))");
+					MySQLFile.get().set("MySQL.visibilityTable", String.valueOf("visibility"));
+					MySQLFile.save();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 			for (Player players : Bukkit.getOnlinePlayers()) {
-				if (Vanish.playerSetup.getPlayer(players.getUniqueId())) {
+				if (playerSetup.getPlayer(players.getUniqueId())) {
 					for (Player onlinePlayers : Bukkit.getOnlinePlayers()) {
 						onlinePlayers.hidePlayer(players);
 						VanishManager.getVanishList().add(players.getUniqueId());
 					}
+				}
+				if (playerVisibility.getPlayer(players.getUniqueId())) {
+					PlayersVisibility.getPlayersCache().add(players.getUniqueId());
+					PlayersVisibility.getPlayersVanishList().add(players.getUniqueId());
+				} else {
+					PlayersVisibility.getPlayersCache().remove(players.getUniqueId());
+					PlayersVisibility.getPlayersVanishList().remove(players.getUniqueId());
 				}
 			}
 		}
@@ -88,11 +107,6 @@ public class Vanish extends JavaPlugin {
 	public void onDisable() {
 		getServer().getConsoleSender().sendMessage(ChatUtil.lines);
 		VANISH = null;
-		/*if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
-			for (UUID uuid : VanishManager.getVanishList()) {
-				playerSetup.setPlayer(uuid, true);
-			}
-		} */
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			for (UUID uuid : VanishManager.getVanishList()) {
 				Player player = Bukkit.getPlayer(uuid);
@@ -102,15 +116,17 @@ public class Vanish extends JavaPlugin {
 		VanishManager.getVanishList().clear();
 		vanishManager = null;
 		playersVisibility = null;
+		playerVisibility = null;
 		if (MySQLFile.get().getString("MySQL.enabled").contentEquals("true")) {
 			try {
-				if (!data.getConnection().isClosed()) {
-					data.closeConnection();
+				if (!vanishData.getConnection().isClosed()) {
+					vanishData.closeConnection();
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			data = null;
+			vanishData = null;
+			visibilityData = null;
 		}
 		getServer().getConsoleSender().sendMessage(ChatUtil.vanishtag + ChatColor.GREEN + "Has been disabled!");
 		getServer().getConsoleSender().sendMessage(ChatUtil.lines);

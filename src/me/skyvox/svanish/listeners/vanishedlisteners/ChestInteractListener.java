@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -25,7 +26,7 @@ public class ChestInteractListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-		if (event.getClickedBlock().getType() == Material.CHEST) {
+		if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.TRAPPED_CHEST) {
 			if (VanishManager.isVanished(event.getPlayer())) {
 				Chest chest = (Chest) event.getClickedBlock().getState();
 				chestLoc.put(event.getPlayer().getUniqueId(), chest.getLocation());
@@ -50,12 +51,28 @@ public class ChestInteractListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onInteractMenu(InventoryClickEvent event) {
+		if (event.getInventory().getType() == InventoryType.CHEST) {
+			Player player = (Player) event.getWhoClicked();
+			if (chestLoc.containsKey(player.getUniqueId())) {
+				if ((event.getCurrentItem() == null)) {
+					return;
+				}
+				Chest chest = (Chest) player.getWorld().getBlockAt(chestLoc.get(player.getUniqueId())).getState();
+				chest.getInventory().setContents(event.getInventory().getContents());
+				chest.update();
+			}
+		}
+	}
+	
+	@EventHandler
 	public void onCloseChest(InventoryCloseEvent event) {
 		if (event.getInventory().getType() == InventoryType.CHEST) {
 			Player player = (Player) event.getPlayer();
 			if (chestLoc.containsKey(player.getUniqueId())) {
 				Chest chest = (Chest) player.getWorld().getBlockAt(chestLoc.get(player.getUniqueId())).getState();
 				chest.getInventory().setContents(event.getInventory().getContents());
+				chest.update();
 				chestLoc.remove(player.getUniqueId());
 			}
 		}
